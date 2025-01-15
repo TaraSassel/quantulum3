@@ -92,7 +92,7 @@ def split_range(value, range_seperator):
 
 
 ###############################################################################
-def get_values(item, lang="en_US"):
+def get_values(item, text, lang="en_US"):
     """
     Extract value from regex hit. context is the enclosing text on which the regex hit.
     """
@@ -103,6 +103,15 @@ def get_values(item, lang="en_US"):
     fracs = r"|".join(reg.unicode_fractions())
 
     value = item.group("value")
+
+    # If no value exists before unit check after - added to quantulum
+    if not value and text:
+        unit_end = item.end()
+        post_text = text[unit_end:unit_end + 50]  # Check up to 50 characters after the unit
+        post_values = re.search(r"(\d+(?:\.\d+)?(?:/\d+)?(?:e[+-]?\d+)?)", post_text)
+        if post_values:
+            value = post_values.group(1)
+
     # Remove grouping operators
     value = re.sub(
         r"(?<=\d)[%s](?=\d{3})" % reg.grouping_operators_regex(lang), "", value
@@ -559,7 +568,7 @@ def parse(
         _LOGGER.debug("Quantity found: %s", groups)
 
         try:
-            uncert, values = get_values(item, lang)
+            uncert, values = get_values(item, lang, text) # added text
 
             unit, unit_shortening = get_unit(item, text, lang, classifier_path)
             surface, span = get_surface(shifts, orig_text, item, text, unit_shortening)
