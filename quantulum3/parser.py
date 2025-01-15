@@ -107,7 +107,7 @@ def get_values(item, text, lang="en_US"):
     # If no value exists before unit check after - added to quantulum
     if not value and text:
         unit_end = item.end()
-        post_text = text[unit_end:unit_end + 50]  # Check up to 50 characters after the unit
+        post_text = text[unit_end:unit_end + 10]  # Check up to 50 characters after the unit
         post_values = re.search(r"(\d+(?:\.\d+)?(?:/\d+)?(?:e[+-]?\d+)?)", post_text)
         if post_values:
             value = post_values.group(1)
@@ -568,7 +568,7 @@ def parse(
         _LOGGER.debug("Quantity found: %s", groups)
 
         try:
-            uncert, values = get_values(item, lang, text) # added text
+            uncert, values = get_values(item, text, lang) # added text
 
             unit, unit_shortening = get_unit(item, text, lang, classifier_path)
             surface, span = get_surface(shifts, orig_text, item, text, unit_shortening)
